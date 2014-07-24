@@ -25,7 +25,7 @@ To use this repo:
 
     ```
     wstool init .
-    wstool merge https://raw.githubusercontent.com/davetcoleman/moveit_hrp2/master/moveit_hrp2.rosinstall
+    wstool merge https://raw.githubusercontent.com/davetcoleman/moveit_hrp2/balance_constraint_test/moveit_hrp2.rosinstall
     wstool update
     ```
 
