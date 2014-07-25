@@ -179,7 +179,7 @@ public:
       const double* positions = robot_state_->getVariablePositions() ;
       for (std::size_t i = 0 ; i < joints.size() ; ++i){
 	joint_positions.insert(std::make_pair(joints.at(i)->getName(), positions[i]));
-	positions++ ;
+	// positions++ ;
       }
       hrl_kinematics::Kinematics::FootSupport support_mode_
 	= hrl_kinematics::Kinematics::SUPPORT_DOUBLE;
