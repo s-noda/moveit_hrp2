@@ -62,6 +62,8 @@
 // Random numbers
 #include <random_numbers/random_numbers.h>
 
+#include <hrl_kinematics/TestStability.h>
+
 namespace hrp2jsknt_moveit_demos
 {
 
@@ -72,6 +74,8 @@ static const std::string BASE_LINK = "/odom";
 class HRP2Demos
 {
 public:
+  hrl_kinematics::TestStability test_stability_;
+
   HRP2Demos(const std::string planning_group_name)
     : nh_("~")
     , walking_service_name_("/generate_walking_service")
@@ -98,7 +102,7 @@ public:
     // Load the Robot Viz Tools for publishing to Rviz
     visual_tools_.reset(new moveit_visual_tools::VisualTools(BASE_LINK, MARKER_TOPIC, robot_model_));
     visual_tools_->loadRobotStatePub("/hrp2_demos");
-    visual_tools_->deleteAllMarkers(); // clear all old markers
+    // visual_tools_->deleteAllMarkers(); // clear all old markers
 
     // Allow time to startup
     sleep_time_.sleep();
@@ -167,6 +171,36 @@ public:
 
       // Display result
       visual_tools_->publishRobotState(robot_state_);
+
+      //double *positions;
+      //robot_state_->getVariablePositions(positions);
+      //int num_joints = robot_state_->getVariableCount();
+      //hrl_kinematics::Kinematics::FootSupport support = hrl_kinematics::Kinematics::SUPPORT_DOUBLE;
+      //hrl_kinematics::TestStabilityNode StabilityNode(support);
+
+      // sensor_msgs::JointStateConstPtr& state ;
+      // size_t num_joints = state->position.size();
+      // size_t num_joints = robot_state_->getVariableCount();
+      // ROS_DEBUG("Received JointState with %zu joints", num_joints);
+      std::map<std::string, double> joint_positions;
+      //for (unsigned int i=0; i<state->name.size(); i++){
+       	// joint_positions.insert(make_pair(state->name[i], state->position[i]));
+      const std::vector<const moveit::core::JointModel*> joints = joint_model_group_->getActiveJointModels();
+      const double* positions = robot_state_->getVariablePositions() ;
+      for (std::size_t i = 0 ; i < joints.size() ; ++i){
+	joint_positions.insert(std::make_pair(joints.at(i)->getName(), positions[i]));
+	positions++ ;
+      }
+      hrl_kinematics::Kinematics::FootSupport support_mode_ = hrl_kinematics::Kinematics::SUPPORT_DOUBLE;
+      tf::Vector3 normal_vector(0.0, 0.0, 1.0);
+      normal_vector.normalize();
+      bool stable = test_stability_.isPoseStable(joint_positions, support_mode_, normal_vector);
+      tf::Point com = test_stability_.getCOM();
+      if (stable)
+       	ROS_INFO("Pose is stable, pCOM at %f %f", com.x(), com.y());
+      else
+      	ROS_INFO("Pose is NOT stable, pCOM at %f %f", com.x(), com.y());
+
 
       // let ROS send the message, then wait a while
       loop_rate.sleep();

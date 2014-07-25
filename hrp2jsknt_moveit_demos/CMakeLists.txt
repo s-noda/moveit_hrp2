@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   pluginlib
   moveit_visual_tools
   hrp2_moveit_msgs
+  hrl_kinematics
 )
 
 find_package(Eigen REQUIRED)
@@ -25,6 +26,7 @@ catkin_package(
     moveit_msgs
     interactive_markers
     moveit_visual_tools
+    hrl_kinematics
 )
 
 ###########
