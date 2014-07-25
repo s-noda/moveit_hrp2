@@ -172,26 +172,17 @@ public:
       // Display result
       visual_tools_->publishRobotState(robot_state_);
 
-      //double *positions;
-      //robot_state_->getVariablePositions(positions);
-      //int num_joints = robot_state_->getVariableCount();
-      //hrl_kinematics::Kinematics::FootSupport support = hrl_kinematics::Kinematics::SUPPORT_DOUBLE;
-      //hrl_kinematics::TestStabilityNode StabilityNode(support);
-
-      // sensor_msgs::JointStateConstPtr& state ;
-      // size_t num_joints = state->position.size();
-      // size_t num_joints = robot_state_->getVariableCount();
-      // ROS_DEBUG("Received JointState with %zu joints", num_joints);
+      // add balance constraints check
       std::map<std::string, double> joint_positions;
-      //for (unsigned int i=0; i<state->name.size(); i++){
-       	// joint_positions.insert(make_pair(state->name[i], state->position[i]));
-      const std::vector<const moveit::core::JointModel*> joints = joint_model_group_->getActiveJointModels();
+      const std::vector<const moveit::core::JointModel*> joints
+	= joint_model_group_->getActiveJointModels();
       const double* positions = robot_state_->getVariablePositions() ;
       for (std::size_t i = 0 ; i < joints.size() ; ++i){
 	joint_positions.insert(std::make_pair(joints.at(i)->getName(), positions[i]));
 	positions++ ;
       }
-      hrl_kinematics::Kinematics::FootSupport support_mode_ = hrl_kinematics::Kinematics::SUPPORT_DOUBLE;
+      hrl_kinematics::Kinematics::FootSupport support_mode_
+	= hrl_kinematics::Kinematics::SUPPORT_DOUBLE;
       tf::Vector3 normal_vector(0.0, 0.0, 1.0);
       normal_vector.normalize();
       bool stable = test_stability_.isPoseStable(joint_positions, support_mode_, normal_vector);
@@ -200,7 +191,7 @@ public:
        	ROS_INFO("Pose is stable, pCOM at %f %f", com.x(), com.y());
       else
       	ROS_INFO("Pose is NOT stable, pCOM at %f %f", com.x(), com.y());
-
+      // add balance constraints check
 
       // let ROS send the message, then wait a while
       loop_rate.sleep();
